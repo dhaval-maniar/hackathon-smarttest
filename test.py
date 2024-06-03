@@ -10,8 +10,6 @@ import re
 
 change_url = "https://gerrit.eng.nutanix.com/c/prismui/+/866224"
 
-print("File run")
-
 def get_files(change_url):
     username = "dhaval.maniar"
     password = "LQ7l3K0gHvQdWqXDOcOFXApsFB184TvREmPm3qFfFQ"
@@ -22,7 +20,6 @@ def get_files(change_url):
     if response.status_code == 200:
         data = json.loads(response.text[5:])
         pretty_data = json.dumps(data, indent=4)
-        print(pretty_data)
         return pretty_data
     else:
         print(response.text)
@@ -45,18 +42,17 @@ def get_commitmsg (change_url):
         print(response.text)
 
 def parse_filepath(file_path):
-    match = re.search(r'/src/pages/([^/]+)/', file_path)
+    match = re.search(r'/src/pages/([^/]+)/', file_path) or re.search(r'/src/([^/]+)/', file_path)
     if match:
         return match.group(1)
     return None
 
 def extract_feature(files):
-    features = set()
+    features = ""
     for file in files:
         feature = parse_filepath(file)
         if feature:
-            print(feature)
-            features.add(feature)
+            features = feature
     return features
 
 files = get_files(change_url)
