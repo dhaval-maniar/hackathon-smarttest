@@ -1,0 +1,320 @@
+{
+    "name": "testset-final-3",
+    "user_groups": [],
+    "args_map": {},
+    "agave_options": {},
+    "tests": [
+        {
+            "id": "640f5951c024920009823f09",
+            "name": "acropolis.ahv_ui.pc.image_throttling.test_pc_image_throttling.ImageThrottlingPolicy.test_verify_image_throttling_policy_details_single_category",
+            "service": "NutestPy3Tests",
+            "package_type": "tar",
+            "repo": "nutest-py3-tests",
+            "framework_version": "nutest-py3-tests",
+            "owner": "compute-ui@nutanix.com",
+            "tags": [
+                "REG_HANDEDOVER"
+            ],
+            "additional_tags": [],
+            "avg_run_duration": "",
+            "priority": "P2 - Major",
+            "requirements": "FEAT-11222",
+            "metadata_services": "PC_TAR",
+            "components": "AHV_MANAGEMENT",
+            "resource_spec": [
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 36,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 12
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_0",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 12,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 5
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_1",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "name": "prism_central_0",
+                    "prism_elements": [
+                        {
+                            "host": "prism_element_0"
+                        },
+                        {
+                            "host": "prism_element_1"
+                        }
+                    ],
+                    "dependencies": [
+                        "prism_element_0",
+                        "prism_element_1"
+                    ],
+                    "provider": {
+                        "host": "prism_element_0"
+                    },
+                    "scaleout": {
+                        "num_instances": 0
+                    },
+                    "type": "$PRISM_CENTRAL"
+                },
+                {
+                    "dependencies": [
+                        "prism_element_0"
+                    ],
+                    "type": "$SELENIUM_VM",
+                    "name": "selenium_server",
+                    "provider": {
+                        "host": "prism_element_0"
+                    }
+                }
+            ],
+            "success_percentage": "",
+            "key": "1717391360862"
+        },
+        {
+            "id": "640f59f8c02492000983dfce",
+            "name": "acropolis.ahv_ui.pc.image_throttling.test_pc_image_throttling.ImageThrottlingPolicy.test_verify_image_throttling_policy_details_multiple_categories",
+            "service": "NutestPy3Tests",
+            "package_type": "tar",
+            "repo": "nutest-py3-tests",
+            "framework_version": "nutest-py3-tests",
+            "owner": "compute-ui@nutanix.com",
+            "tags": [
+                "REG_HANDEDOVER"
+            ],
+            "additional_tags": [],
+            "avg_run_duration": "",
+            "priority": "P2 - Major",
+            "requirements": "FEAT-11222",
+            "metadata_services": "PC_TAR",
+            "components": "AHV_MANAGEMENT",
+            "resource_spec": [
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 36,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 12
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_0",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 12,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 5
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_1",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "name": "prism_central_0",
+                    "prism_elements": [
+                        {
+                            "host": "prism_element_0"
+                        },
+                        {
+                            "host": "prism_element_1"
+                        }
+                    ],
+                    "dependencies": [
+                        "prism_element_0",
+                        "prism_element_1"
+                    ],
+                    "provider": {
+                        "host": "prism_element_0"
+                    },
+                    "scaleout": {
+                        "num_instances": 0
+                    },
+                    "type": "$PRISM_CENTRAL"
+                },
+                {
+                    "dependencies": [
+                        "prism_element_0"
+                    ],
+                    "type": "$SELENIUM_VM",
+                    "name": "selenium_server",
+                    "provider": {
+                        "host": "prism_element_0"
+                    }
+                }
+            ],
+            "success_percentage": "",
+            "key": "1717391369937"
+        },
+        {
+            "id": "640f58bcc024920009813b13",
+            "name": "acropolis.ahv_ui.pc.image_throttling.test_pc_image_throttling.ImageThrottlingPolicy.test_update_image_throttling_policy_details_page",
+            "service": "NutestPy3Tests",
+            "package_type": "tar",
+            "repo": "nutest-py3-tests",
+            "framework_version": "nutest-py3-tests",
+            "owner": "compute-ui@nutanix.com",
+            "tags": [
+                "REG_HANDEDOVER"
+            ],
+            "additional_tags": [],
+            "avg_run_duration": "",
+            "priority": "P2 - Major",
+            "requirements": "FEAT-11222",
+            "metadata_services": "PC_TAR",
+            "components": "AHV_MANAGEMENT",
+            "resource_spec": [
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 36,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 12
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_0",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 12,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 5
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_1",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "name": "prism_central_0",
+                    "prism_elements": [
+                        {
+                            "host": "prism_element_0"
+                        },
+                        {
+                            "host": "prism_element_1"
+                        }
+                    ],
+                    "dependencies": [
+                        "prism_element_0",
+                        "prism_element_1"
+                    ],
+                    "provider": {
+                        "host": "prism_element_0"
+                    },
+                    "scaleout": {
+                        "num_instances": 0
+                    },
+                    "type": "$PRISM_CENTRAL"
+                },
+                {
+                    "dependencies": [
+                        "prism_element_0"
+                    ],
+                    "type": "$SELENIUM_VM",
+                    "name": "selenium_server",
+                    "provider": {
+                        "host": "prism_element_0"
+                    }
+                }
+            ],
+            "success_percentage": "",
+            "key": "1717391392244"
+        },
+        {
+            "id": "640f5a03c024920009840898",
+            "name": "acropolis.ahv_ui.pc.image_throttling.test_pc_image_throttling.ImageThrottlingPolicy.test_create_image_single_category_single_cluster",
+            "service": "NutestPy3Tests",
+            "package_type": "tar",
+            "repo": "nutest-py3-tests",
+            "framework_version": "nutest-py3-tests",
+            "owner": "compute-ui@nutanix.com",
+            "tags": [
+                "REG_HANDEDOVER"
+            ],
+            "additional_tags": [],
+            "avg_run_duration": "",
+            "priority": "P0 - Blocker",
+            "requirements": "FEAT-11222",
+            "metadata_services": "PC_TAR",
+            "components": "AHV_MANAGEMENT",
+            "resource_spec": [
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 36,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 12
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_0",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "hardware": {
+                        "min_host_gb_ram": 12,
+                        "cluster_min_nodes": 1,
+                        "min_host_cpu_cores": 5
+                    },
+                    "type": "$NOS_CLUSTER",
+                    "name": "prism_element_1",
+                    "must_run_on_hypervisors": [
+                        "ahv"
+                    ]
+                },
+                {
+                    "name": "prism_central_0",
+                    "prism_elements": [
+                        {
+                            "host": "prism_element_0"
+                        },
+                        {
+                            "host": "prism_element_1"
+                        }
+                    ],
+                    "dependencies": [
+                        "prism_element_0",
+                        "prism_element_1"
+                    ],
+                    "provider": {
+                        "host": "prism_element_0"
+                    },
+                    "scaleout": {
+                        "num_instances": 0
+                    },
+                    "type": "$PRISM_CENTRAL"
+                },
+                {
+                    "dependencies": [
+                        "prism_element_0"
+                    ],
+                    "type": "$SELENIUM_VM",
+                    "name": "selenium_server",
+                    "provider": {
+                        "host": "prism_element_0"
+                    }
+                }
+            ],
+            "success_percentage": "",
+            "key": "1717391450467"
+        }
+    ]
+}
