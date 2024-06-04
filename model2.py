@@ -1,16 +1,14 @@
-import pandas as pd
-
-from sklearn.feature_extraction.text import CountVectorizer
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import make_pipeline
-from sklearn.metrics import accuracy_score
-
-from joblib import dump
-
-# Preparing the data
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report
+ 
+# Sample data: replace with actual dataset
 data = [
     {
+        'commit_message': "Add Footer Component in Throttle Policy Form",
         'file_changes': {
             "prism/aphrodite/web/app/react/16/src/pages/image_throttling/ThrottlingPolicyForm/ThrottlingPolicyForm.jsx": {
                 "lines_inserted": 10,
@@ -22,6 +20,7 @@ data = [
         'feature': "image_throttling"
     },
     {
+        'commit_message': "Fix Enrolled Clusters Table Title",
         'file_changes': {
             "prism/aphrodite/web/app/react/16/src/pages/image_throttling/EnrolledClustersTable/EnrolledClustersTable.jsx": {
                 "lines_inserted": 2,
@@ -33,6 +32,7 @@ data = [
         'feature': "image_throttling"
     },
     {
+        'commit_message': "Update the Bandwidth Throttling Policy details page",
         'file_changes': {
             "prism/aphrodite/web/app/react/16/src/pages/image_throttling/BandwidthThrottlingPolicy/BandwidthThrottlingPolicyDetails.jsx": {
                 "lines_inserted": 5,
@@ -42,109 +42,69 @@ data = [
             }
         },
         'feature': "image_throttling"
-    },
-    {
-        'file_changes': {
-            "/COMMIT_MSG": {
-                "status": "A",
-                "lines_inserted": 21,
-                "size_delta": 821,
-                "size": 821
-            },
-            "prism/aphrodite/web/app/extras/i18n/en-US/i18n.json": {
-                "lines_inserted": 13,
-                "size_delta": 464,
-                "size": 1326557
-            },
-            "prism/aphrodite/web/app/react/16/src/image_placement/api/index.ts": {
-                "lines_inserted": 2,
-                "lines_deleted": 1,
-                "size_delta": 25,
-                "size": 258
-            }
-        },
-        'feature': "image_placement"
-    },
-    {
-        'file_changes': {
-            "/COMMIT_MSG": {
-                "status": "A",
-                "lines_inserted": 26,
-                "size_delta": 965,
-                "size": 965
-            },
-            "prism/aphrodite/web/app/react/16/src/image_placement/components/PolicyForm/PolicyForm.tsx": {
-                "lines_inserted": 103,
-                "lines_deleted": 92,
-                "size_delta": 577,
-                "size": 18150
-            }
-        },
-        'feature': "image_placement"
-    },
-    {
-        'file_changes': {
-            "prism/aphrodite/web/app/react/16/src/image_placement/api/index.ts": {
-                "lines_inserted": 2,
-                "lines_deleted": 1,
-                "size_delta": 25,
-                "size": 258
-            }
-        },
-        'feature': "image_placement"
     }
 ]
-
-# Extracting file paths and features
-file_paths = []
+ 
+# Function to preprocess text
+def preprocess_text(text):
+    # Remove URLs and special characters, and convert to lowercase
+    text = re.sub(r'http\S+', '', text)
+    text = re.sub(r'[^a-zA-Z\s]', '', text)
+    return text.lower().strip()
+ 
+# Function to extract feature from file changes
+def extract_feature(file_changes):
+    features = set()
+    for file_path in file_changes.keys():
+        match = re.search(r'/src/pages/([^/]+)/', file_path)
+        if match:
+            features.add(match.group(1))
+    return ' '.join(features)
+ 
+# Prepare data
+commit_messages = []
 features = []
-
-for entry in data:
-    for file_path in entry['file_changes'].keys():
-        file_paths.append(file_path)
-        features.append(entry['feature'])
-
-df = pd.DataFrame({'file_path': file_paths, 'feature': features})
-
-# Splitting the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(df['file_path'], df['feature'], test_size=0.2, random_state=42)
-
-# Creating a pipeline with a CountVectorizer and a MultinomialNB classifier
-model = make_pipeline(CountVectorizer(), MultinomialNB())
-
-# Training the model
+ 
+for item in data:
+    commit_message = preprocess_text(item['commit_message'])
+    file_feature = extract_feature(item['file_changes'])
+    combined_text = commit_message + " " + file_feature
+    commit_messages.append(combined_text)
+    features.append(item['feature'])
+ 
+# Vectorize text using TF-IDF
+vectorizer = TfidfVectorizer()
+ 
+X = vectorizer.fit_transform(commit_messages)
+y = features
+ 
+# Encode labels
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(y)
+ 
+# Split data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+ 
+# Train logistic regression model
+model = LogisticRegression()
 model.fit(X_train, y_train)
-
-# Predicting and evaluating the model
+ 
+# Predict and evaluate
 y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Model Accuracy: {accuracy * 100:.2f}%")
-
-dump(model, 'feature_predictor.joblib')
-
-# def predict_feature(file_changes):
-#     paths_concatenated = " ".join(file_changes.keys())
-#     return model.predict([paths_concatenated])[0]
-#
-# # Example prediction
-# new_file_changes = {
-# "/COMMIT_MSG": {
-# "status": "A",
-# "lines_inserted": 23,
-# "size_delta": 1014,
-# "size": 1014
-# },
-# "prism/aphrodite/web/app/extras/i18n/en-US/i18n.json": {
-# "lines_inserted": 1,
-# "size_delta": 24,
-# "size": 1348145
-# },
-# "prism/aphrodite/web/app/react/16/src/pages/image_throttling/ThrottlingPolicyForm/ThrottlingPolicyForm.jsx": {
-# "lines_inserted": 7,
-# "size_delta": 277,
-# "size": 11644
-# }
-# }
-#
-# predicted_features = predict_feature(new_file_changes)
-# print(predicted_features)
+print(classification_report(y_test, y_pred, target_names=label_encoder.classes_))
+ 
+# Predict feature for new commit
+new_commit_message = "Fix issue in Throttle Policy Form"
+new_file_changes = {
+    "prism/aphrodite/web/app/react/16/src/pages/image_throttling/ThrottlingPolicyForm/ThrottlingPolicyForm.jsx": {
+        "lines_inserted": 10,
+        "lines_deleted": 2,
+        "size_delta": 50,
+        "size": 1500
+    }
+}
+ 
+new_combined_text = preprocess_text(new_commit_message) + " " + extract_feature(new_file_changes)
+new_X = vectorizer.transform([new_combined_text])
+predicted_feature = label_encoder.inverse_transform(model.predict(new_X))
+print("Predicted Feature:", predicted_feature[0])
