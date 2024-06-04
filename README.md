@@ -10,6 +10,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 You need to have Python 3 installed on your machine. The script uses the following Python libraries:
 
+- pandas
+- sklearn
 - os
 - time
 - json
@@ -30,7 +32,7 @@ Navigate to the project directory:
 ```cd hack2024-interns-team6```
 
 Usage
-- Run the script to train the model ``` python3 classification_model.py``
+- Run the script to train the model ```python3 classification_model.py```
 - Now the model ```feature_predictor.joblib``` is generated 
 - Start the slack server ```python3 server.py```
 - Now the Bot is listening for Gerrit links
