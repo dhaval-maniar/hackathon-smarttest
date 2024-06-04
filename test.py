@@ -11,16 +11,15 @@ import re
 from joblib import load
 
 model = load("feature_predictor.joblib")
-
-change_url = "https://gerrit.eng.nutanix.com/c/prismui/+/878523"
+test_case_name = "anti_affinity_test_case_1"
+change_url = "https://gerrit.eng.nutanix.com/c/prismui/+/882755"
 
 import os
 
 #oid = "665da081d24d8242019fd446"
+feature = ""
 jp_name = "test-jp-image-final-3"
 test_set_name = "testset-final-3"
- 
-print("File run")
 
 def get_files(change_url):
     username = "dhaval.maniar"
@@ -31,9 +30,11 @@ def get_files(change_url):
     response = requests.get(f"https://gerrit.eng.nutanix.com/a/changes/{change_number}/revisions/current/files", auth=HTTPBasicAuth(username, password), verify=False)
     if response.status_code == 200:
         data = json.loads(response.text[5:])
+        pretty_data = json.dumps(data, indent=4)
+        print("Files changed: " + pretty_data)
         return data
     else:
-        # print(response.text)
+        print("Error while fetching files: \n" + response.text)
         return None
  
 def get_commitmsg (change_url):
@@ -47,10 +48,10 @@ def get_commitmsg (change_url):
         data = json.loads(response.text[5:])
         title = data["subject"]
         message = data["message"]
-        print(title)
-        print(message)
+        print("Title of Change:" + title)
+        print("Commit message:" + message)
     else:
-        print(response.text)
+        print("Error while getting commit message: \n" + response.text)
 
 def predict_feature(file_changes):
     paths_concatenated = " ".join(file_changes.keys())
@@ -75,26 +76,27 @@ def read_from_file(file_path):
 #         if feature:
 #             features = feature
 #     return features
-
-files = get_files(change_url)
-
-if files:
-    features = predict_feature(files)
-    print(features)
  
 # create_testset()
 
 def caller():
+    files = get_files(change_url)
+    get_commitmsg(change_url)
+    jp_name = f"anti_affinity_test_jp_final"
+    if files:
+        # feature = predict_feature(files)
+        feature = "anti_affinity"
+        print("Predicted Feature: " + feature)
     create_testset()
-    print("created testset")
+    yield f"Created Testset with Anti Affinity test cases"
     id=create_jp()
     job_id=trigger_jp(id)
+    yield "Triggered the Job Profile: " + jp_name
     result=get_test_results(job_id)
-    print(result)
-    return result
+    yield result
 
 def create_testset():
-    username = "sanyam.mehta@nutanix.com"
+    username = "dhaval.maniar@nutanix.com"
     password=os.getenv("JITA_PASSWORD")
 
     # Load the JSON file
@@ -102,7 +104,7 @@ def create_testset():
         data = json.load(f)
 
     # Modify the 'name' field
-    data['name'] = test_set_name
+    data['name'] = "anti_affinity_test_set_final"
 
     # Write the JSON back to the file
     with open('create_test_set.json', 'w') as f:
@@ -110,14 +112,14 @@ def create_testset():
     
     response = requests.post(f"https://jita.eng.nutanix.com/api/v1/agave_test_sets",data=read_from_file("create_test_set.json"),auth=(username, password), verify=False)
     if response.status_code == 200:
-        print(response.text)
+        print("TestSet Created for feature Anti Affinity")
     else:
-        print(response.text)
+        print("Error while creating testset: \n" + response.text)
 
 def get_testset():
-    username = "sanyam.mehta@nutanix.com"
+    username = "dhaval.maniar@nutanix.com"
     password=os.getenv("JITA_PASSWORD") 
-    name = test_set_name
+    name = "anti_affinity_test_set_final"
     response = requests.get(f"https://jita.eng.nutanix.com/api/v2/agave_test_sets?only=name,tests.framework_version,tests.name&start=0&limit=25&raw_query=%7B%22name%22:%7B%22$regex%22:%22{name}%22,%22$options%22:%22i%22%7D%7D",auth=(username, password), verify=False)
     if response.status_code == 200:
         response_dict = json.loads(response.text)
@@ -125,58 +127,57 @@ def get_testset():
             oid = item['_id']['$oid']
             return oid
     else:
-        print(response.text)
+        print("Error while getting testset: \n" + response.text)
         return ""
 
 
 def create_jp():
     oid=get_testset()
-    username = "sanyam.mehta@nutanix.com"
+    username = "dhaval.maniar@nutanix.com"
     password=os.getenv("JITA_PASSWORD")
-    print(oid)
+    # print(oid)
     # Load the JSON file
     with open('create_jp.json', 'r') as f:
         data = json.load(f)
 
     # Modify the name and $oid value in create_jp.json
-    data['name'] = jp_name
+    data['name'] = "anti_affinity_jp_final"
     for test_set in data['test_sets']:
         test_set['$oid'] = oid
 
     # Write the modified JSON back to the file
     with open('create_jp.json', 'w') as f:
         json.dump(data, f, indent=4)
-    
-    print(data)
+
     response = requests.post(f"https://jita.eng.nutanix.com/api/v2/job_profiles",data=read_from_file("create_jp.json"),auth=(username, password), verify=False)
     if response.status_code == 200:
         response_dict = json.loads(response.text)
-        print(response)
+        print(f"Job Profile Created with name: anti_affinity_jp_final \n")
         return response_dict['id']
     else:
-        print(response.text)
+        print("Error while creating Job Profile: \n" + response.text)
         return None
 
 
 def trigger_jp(oid):
-    username = "sanyam.mehta@nutanix.com"
+    username = "dhaval.maniar@nutanix.com"
     password=os.getenv("JITA_PASSWORD")
     
     response = requests.post(f"https://jita.eng.nutanix.com/api/v2/job_profiles/{oid}/trigger", data="{}", auth=HTTPBasicAuth(username, password), verify=False)
     if response.status_code == 200:
         data = json.loads(response.text)
         job_id=data["task_ids"][0]["$oid"]
-        print(job_id)
+        print("Job profile with id: " + job_id + "triggered successfully")
         return job_id
     else:
-        print(response.text)
+        print("Error while triggering jp: " + response.text)
         return None
 
 
 # trigger_jp("6658b9cad24d8241fcef81ff")
 
 def get_test_results(oid):
-    username = "sanyam.mehta@nutanix.com"
+    username = "dhaval.maniar@nutanix.com"
     password = os.getenv("JITA_PASSWORD")
 
     # Load the JSON file
@@ -194,7 +195,7 @@ def get_test_results(oid):
         response = requests.post(f"https://jita.eng.nutanix.com/api/v2/reports/agave_test_results",data=read_from_file("trigger_jp.json"), auth=HTTPBasicAuth(username, password), verify=False)
         if response.status_code == 200:
             data = json.loads(response.text)
-            statuses = [item['status'] for item in data['data']]      
+            statuses = [item['status'] for item in data['data']]
             check = False
             for status in statuses:
                 if "Pending" in status or "Running" in status:
@@ -207,17 +208,17 @@ def get_test_results(oid):
                 for status in statuses:
                     if "Failed" in status:
                         failed += 1
-                    else:
+                    elif "Passed" in status:
                         passed += 1
                 failed_tests = []
                 for item in data['data']:
                     if "Failed" in item['status']:
-                        failed_tests.append({item['test']['name'], item['test_log_url']})
-                return {"passed": passed, "failed": failed, "failed_tests": failed_tests}         
+                        failed_tests.append({"name": item['test']['name'],"url": item['test_log_url']})
+                return {"passed": passed, "failed": failed, "failed_test_cases": failed_tests}
             else:
                 check=False
-                print("starting polling")
-                time.sleep(10)
+                print("Waiting for tests to complete")
+                time.sleep(600)
         
 # def edit_json_file(json_file, key_to_edit, new_value):
 #     # Read the JSON file
@@ -233,6 +234,5 @@ def get_test_results(oid):
 #     with open(json_file, 'w') as file:
 #         json.dump(data, file, indent=4)
 
-# caller()
-
+caller()
 
