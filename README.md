@@ -21,7 +21,6 @@ You need to have Python 3 installed on your machine. The script uses the followi
 
 You can install these libraries using pip:
 
-bash
 ```pip install install requests joblib urllib3```
 
 Installing
