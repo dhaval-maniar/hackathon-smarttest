@@ -14,7 +14,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 username = os.getenv("JITA_USERNAME")
 password = os.getenv("JITA_PASSWORD")
 model = load("feature_predictor.joblib")
-change_url = "https://gerrit.eng.nutanix.com/c/prismui/+/882755"
 
 # Function to get data from a URL
 def get_data_from_url(url, username, password):
@@ -83,7 +82,7 @@ def get_test_results(oid):
                     time.sleep(600)
 
 # Function to run the script
-def run_the_script():
+def run_the_script(change_url):
     files = get_files(change_url)
     commit_msg = get_commitmsg(change_url)
     if files and commit_msg:

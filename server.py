@@ -10,7 +10,7 @@ slack_app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 @slack_app.message(".*gerrit.eng.nutanix.com*")
 def handle_message(message, say):
     # Run the script and get the result
-    script_result = run_the_script()
+    script_result = run_the_script(message['text'])
 
     # Send the first two status_updates as messages
     say(next(script_result))
