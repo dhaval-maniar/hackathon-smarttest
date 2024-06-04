@@ -1,0 +1,127 @@
+{
+    "v": 3,
+    "created_by": "65bb1fa18e79ceb584d8050f",
+    "created_by_user": {
+        "$oid": "65bb1fa18e79ceb584d8050f"
+    },
+    "name": "anti_affinity_jp_final",
+    "description": "",
+    "system_under_test": {
+        "product": "pc",
+        "branch": "master",
+        "component": "main"
+    },
+    "emails": [],
+    "user_groups": [],
+    "service": "AOS",
+    "package_type": "tar",
+    "test_service": "Nutest",
+    "private": false,
+    "infra": [
+        {
+            "kind": "ON_PREM",
+            "type": "cluster",
+            "entries": [
+                "auto_cluster_nested_66544a7f57f2f3c483029a2d",
+                "10.96.76.56",
+                "10.96.83.43",
+                "auto_cluster_nested_66544a7f57f2f3c483029a30"
+            ]
+        }
+    ],
+    "services": [
+        "NOS",
+        "PC"
+    ],
+    "skip_commit_id_validation": null,
+    "resource_manager_json": {
+        "NOS_CLUSTER": {
+            "software": {
+                "hypervisor": {
+                    "license_kind": "any",
+                    "license_coupon": "public"
+                }
+            }
+        },
+        "PRISM_CENTRAL": {
+            "build": {
+                "branch": "master",
+                "component": "main",
+                "build_selection_option": "Latest Smoke Passed",
+                "build_selection_build_type": "release"
+            }
+        },
+        "SELENIUM_VM": {
+            "software": {
+                "build_url": "http://endor.dyn.nutanix.com/GoldImages/selenlium_windows_image/selenium/zalenium_latest.qcow2"
+            }
+        }
+    },
+    "git": {
+        "branch": "master",
+        "repo": "main"
+    },
+    "build_selection": {
+        "commit_must_be_newer": false,
+        "build_type": "release",
+        "by_latest_smoked": true
+    },
+    "image_branch": null,
+    "image_build_type": null,
+    "image_commit": null,
+    "image_gbn": null,
+    "requested_hardware": {
+        "hypervisor": null,
+        "hypervisor_version": null,
+        "imaging_options": {
+            "redundancy_factor": "default"
+        }
+    },
+    "scheduling_options": {
+        "skip_resource_spec_match": true,
+        "check_image_compatibility": false,
+        "force_imaging": false,
+        "upgrade": false,
+        "retry_imaging": 0,
+        "optimize_scheduling": true,
+        "task_priority": 10
+    },
+    "allow_resource_sharing": false,
+    "allow_resource_sharing_across_tasks": false,
+    "plugin_tar_location": null,
+    "plugin_commit": null,
+    "test_sets": [
+        {
+            "$oid": "665eac2e2bc0c413e1ac8ec0"
+        }
+    ],
+    "test_framework": "nutest-py3-tests",
+    "nutest-py3-tests_branch": null,
+    "nutest-py3-tests_commit": null,
+    "test_framework_metadata": {
+        "framework": {
+            "branch": null,
+            "commit": null
+        },
+        "test": {
+            "branch": null,
+            "commit": null
+        }
+    },
+    "patch_url": null,
+    "nutest_egg_url": null,
+    "test_tar_url": null,
+    "sdk_installation_options": {},
+    "skip_bad_tests": false,
+    "tester_tags": [],
+    "run_tests_with_priorities": [],
+    "run_tests_with_additional_tags": [],
+    "auto_schedule_cron": false,
+    "tester_container_config": null,
+    "retain_resources_config": null,
+    "demo_mode": false,
+    "plugins": {
+        "pre_run": [],
+        "post_run": []
+    }
+}
