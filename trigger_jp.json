@@ -1,0 +1,12 @@
+{
+    "raw_query": {
+        "agave_task_id": {
+            "$in": [
+                {
+                    "$oid": null
+                }
+            ]
+        }
+    },
+    "only": "status,comments,jira_tickets,agave_task_id,created_at,start_time,end_time,test,deployment_id,stage,allocated_resources,test_log_url,retain_resources,triaged_by"
+}
