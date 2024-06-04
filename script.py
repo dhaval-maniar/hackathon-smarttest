@@ -7,95 +7,82 @@ from requests.auth import HTTPBasicAuth
 from joblib import load
 import urllib3
 
+# Disable warnings for insecure requests
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Load environment variables and model
 username = os.getenv("JITA_USERNAME")
 password = os.getenv("JITA_PASSWORD")
 model = load("feature_predictor.joblib")
 change_url = "https://gerrit.eng.nutanix.com/c/prismui/+/882755"
 
+# Function to get data from a URL
 def get_data_from_url(url, username, password):
+    # Send a GET request to the URL with basic authentication
     response = requests.get(url, auth=HTTPBasicAuth(username, password), verify=False)
     if response.status_code == 200:
+        # If the response is successful, parse the JSON data and return it
         return json.loads(response.text[5:])
     else:
+        # If the response is not successful, print an error message and return None
         print(f"Error while fetching data from {url}: \n" + response.text)
         return None
 
+# Function to get files from a change URL
 def get_files(change_url):
+    # Extract the change number from the URL
     change_number  = change_url.split("/")[-1]  
     url = f"https://gerrit.eng.nutanix.com/a/changes/{change_number}/revisions/current/files"
+    # Get the data from the URL and return it
     return get_data_from_url(url, "dhaval.maniar", os.getenv("GERRIT_PASSWORD"))
 
-def get_commitmsg(change_url):
-    change_number = change_url.split("/")[-1]
-    url = f"https://gerrit.eng.nutanix.com/a/changes/{change_number}/revisions/current/commit"
-    return get_data_from_url(url, "dhaval.maniar", os.getenv("GERRIT_PASSWORD"))
-
+# Function to predict feature based on file changes
 def predict_feature(file_changes):
     paths_concatenated = " ".join(file_changes.keys())
+    # Use the model to predict the feature and return the result
     return model.predict([paths_concatenated])[0]
 
-def read_from_file(file_path):
-    with open(file_path,'r') as file:
-        return file.read()
-
+# Function to modify a JSON file
 def modify_json_file(file_path, modifications):
+    # Open the file and load the JSON data
     with open(file_path, 'r') as f:
         data = json.load(f)
+    # Apply the modifications to the data
     for key, value in modifications.items():
         data[key] = value
+    # Write the modified data back to the file
     with open(file_path, 'w') as f:
         json.dump(data, f, indent=4)
+    # Return the modified data
     return data
 
-def post_data(url, data, username, password):
-    response = requests.post(url, data=data, auth=(username, password), verify=False)
-    if response.status_code == 200:
-        return json.loads(response.text)
-    else:
-        print(f"Error while posting data to {url}: \n" + response.text)
-        return None
-
+# Function to create a test set
 def create_testset():
+    # Modify the JSON file with the test set name
     data = modify_json_file('create_test_set.json', {'name': "anti_affinity_test_set_final"})
+    # Post the data to the URL to create the test set and return the result
     return post_data("https://jita.eng.nutanix.com/api/v1/agave_test_sets", read_from_file("create_test_set.json"), username, password)
 
-def get_testset():
-    name = "anti_affinity_test_set_final"
-    url = f"https://jita.eng.nutanix.com/api/v2/agave_test_sets?only=name,tests.framework_version,tests.name&start=0&limit=25&raw_query=%7B%22name%22:%7B%22$regex%22:%22{name}%22,%22$options%22:%22i%22%7D%7D"
-    data = get_data_from_url(url, username, password)
-    if data:
-        return data['data'][0]['_id']['$oid']
-    return None
-
-def create_jp():
-    oid = get_testset()
-    if oid:
-        data = modify_json_file('create_jp.json', {'name': "anti_affinity_jp_final", 'test_sets': [{'$oid': oid}]})
-        return post_data("https://jita.eng.nutanix.com/api/v2/job_profiles", read_from_file("create_jp.json"), username, password)['id']
-    return None
-
-def trigger_jp(oid):
-    if oid:
-        data = post_data(f"https://jita.eng.nutanix.com/api/v2/job_profiles/{oid}/trigger", "{}", username, password)
-        if data:
-            return data["task_ids"][0]["$oid"]
-    return None
-
+# Function to get test results
 def get_test_results(oid):
     if oid:
+        # Modify the JSON file with the task ID
         data = modify_json_file('trigger_jp.json', {'raw_query': {'agave_task_id': {'$in': [{'$oid': oid}]}}})
         while True:
+            # Post the data to the URL to get the test results
             data = post_data("https://jita.eng.nutanix.com/api/v2/reports/agave_test_results", read_from_file("trigger_jp.json"), username, password)
             if data:
+                # If the data is received, check the status of the tests
                 statuses = [item['status'] for item in data['data']]
+                # If all tests are not pending or running, return the results
                 if all(status not in ["Pending", "Running"] for status in statuses):
                     return {"passed": statuses.count("Succeeded"), "failed": statuses.count("Failed"), "failed_test_cases": [{"name": item['test']['name'],"url": item['test_log_url']} for item in data['data'] if "Failed" in item['status']]}
                 else:
+                    # If some tests are still pending or running, wait for 10 minutes and then check again
                     print("Waiting for tests to complete")
                     time.sleep(600)
 
+# Function to run the script
 def run_the_script():
     files = get_files(change_url)
     commit_msg = get_commitmsg(change_url)
@@ -114,4 +101,5 @@ def run_the_script():
             result = get_test_results(job_id)
             print(result)
 
+# Run the script
 run_the_script()
